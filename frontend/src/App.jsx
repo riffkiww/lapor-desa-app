@@ -39,7 +39,7 @@ function App() {
     data.append('foto', formData.foto);
 
     try {
-      await axios.post('http://localhost:5050/api/pengaduan', data);
+      await axios.post('http://18.143.140.149:5050/api/pengaduan', data);
       alert("Laporan berhasil dikirim!");
       setFormData({ nama: '', judul: '', isi: '', foto: null });
       fetchLaporan();
