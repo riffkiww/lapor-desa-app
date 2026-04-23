@@ -25,6 +25,9 @@ jobs:
             
             cd ~/lapor-desa-app
             git pull origin main
+
+            # Rebuild Docker secara otomatis
+            docker compose up -d --build
             
             # Notifikasi sederhana dulu untuk tes koneksi
             echo "✅ Koneksi Sukses! Kodingan terbaru sudah ditarik ke server Singapura."
