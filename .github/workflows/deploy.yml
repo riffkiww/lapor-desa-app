@@ -1,0 +1,30 @@
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Masuk ke folder project atau clone jika belum ada
+            if [ ! -d "~/lapor-desa-app" ]; then
+              git clone https://github.com/riffkiww/lapor-desa-app.git ~/lapor-desa-app
+            fi
+            
+            cd ~/lapor-desa-app
+            git pull origin main
+            
+            # Notifikasi sederhana dulu untuk tes koneksi
+            echo "✅ Koneksi Sukses! Kodingan terbaru sudah ditarik ke server Singapura."
