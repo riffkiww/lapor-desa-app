@@ -53,7 +53,6 @@ function App() {
       {/* Navbar Baru */}
       <nav className="navbar">
         <h2>LaporDesa.</h2>
-        <div style={{fontWeight: '600', color: '#666'}}>Admin Dashboard</div>
       </nav>
 
       {/* Hero / Sambutan Dashboard */}
