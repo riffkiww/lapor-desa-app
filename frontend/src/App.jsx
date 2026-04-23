@@ -4,6 +4,9 @@ import './App.css';
 
 function App() {
   const [laporan, setLaporan] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState(null);
   const [formData, setFormData] = useState({
     nama: '',
     judul: '',
@@ -11,12 +14,25 @@ function App() {
     foto: null
   });
 
+  useEffect(() => {
+    if (!toast) {
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => setToast(null), 2600);
+    return () => clearTimeout(timeout);
+  }, [toast]);
+
   const fetchLaporan = async () => {
+    setIsLoading(true);
     try {
       const res = await axios.get('http://18.143.140.149:5050/api/pengaduan');
       setLaporan(res.data);
     } catch (err) {
       console.log("Belum terhubung ke backend");
+      setToast({ type: 'error', message: 'Tidak dapat memuat laporan dari server.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -32,6 +48,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const data = new FormData();
     data.append('nama', formData.nama);
     data.append('judul', formData.judul);
@@ -40,11 +57,13 @@ function App() {
 
     try {
       await axios.post('http://18.143.140.149:5050/api/pengaduan', data);
-      alert("Laporan berhasil dikirim!");
+      setToast({ type: 'success', message: 'Laporan berhasil dikirim.' });
       setFormData({ nama: '', judul: '', isi: '', foto: null });
       fetchLaporan(); // Otomatis refresh daftar laporan setelah kirim
     } catch (err) {
-      alert("Backend belum siap, form belum bisa dikirim!");
+      setToast({ type: 'error', message: 'Backend belum siap, form belum bisa dikirim.' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -66,6 +85,12 @@ function App() {
         </div>
         <span className="badge-live">Realtime Citizen Desk</span>
       </nav>
+
+      {toast && (
+        <div className={`toast toast-${toast.type}`} role="status" aria-live="polite">
+          {toast.message}
+        </div>
+      )}
 
       <main className="container">
         <header className="hero glass-panel">
@@ -135,8 +160,8 @@ function App() {
                 />
               </div>
 
-              <button type="submit" className="btn-submit">
-                Kirim Laporan
+              <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Mengirim...' : 'Kirim Laporan'}
               </button>
             </form>
           </aside>
@@ -147,7 +172,17 @@ function App() {
               <span className="count-pill">{laporan.length} total</span>
             </div>
 
-            {laporan.length === 0 ? (
+            {isLoading ? (
+              <div className="laporan-grid">
+                {[...Array(4)].map((_, index) => (
+                  <div key={index} className={`laporan-item skeleton-card ${index === 0 ? 'bento-wide' : 'bento-regular'}`}>
+                    <span className="skeleton-line short" />
+                    <span className="skeleton-line" />
+                    <span className="skeleton-line" />
+                  </div>
+                ))}
+              </div>
+            ) : laporan.length === 0 ? (
               <div className="empty-state glass-panel">
                 <p>Belum ada laporan masuk. Laporan pertama akan tampil di sini.</p>
               </div>
@@ -163,6 +198,7 @@ function App() {
                     <article
                       key={item.id || `${judul}-${index}`}
                       className={`laporan-item glass-panel ${getCardVariant(index, hasImage)}`}
+                      style={{ animationDelay: `${index * 80}ms` }}
                     >
                       <div className="laporan-meta">
                         <span className="status-badge">{status}</span>
