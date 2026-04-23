@@ -5,6 +5,7 @@ import './App.css';
 function App() {
   // --- STATE UNTUK PINDAH HALAMAN ---
   const [halamanAktif, setHalamanAktif] = useState('dashboard');
+  const [arahTransisi, setArahTransisi] = useState('forward');
 
   const [laporan, setLaporan] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +65,7 @@ function App() {
       fetchLaporan(); 
       
       // KEMBALI KE DASHBOARD SETELAH SUKSES KIRIM
-      setHalamanAktif('dashboard');
+      pindahHalaman('dashboard');
     } catch (err) {
       setToast({ type: 'error', message: 'Backend belum siap, form belum bisa dikirim.' });
     } finally {
@@ -78,28 +79,50 @@ function App() {
     return `${size} ${variants[index % variants.length]}`;
   };
 
+  const pindahHalaman = (target) => {
+    if (target === halamanAktif) {
+      return;
+    }
+
+    const urutanHalaman = { dashboard: 0, form: 1 };
+    setArahTransisi(urutanHalaman[target] > urutanHalaman[halamanAktif] ? 'forward' : 'backward');
+    setHalamanAktif(target);
+  };
+
+  const getViewTransitionClass = (viewName) => {
+    if (viewName === 'form' && arahTransisi === 'forward') {
+      return 'enter-from-right';
+    }
+
+    if (viewName === 'dashboard' && arahTransisi === 'backward') {
+      return 'enter-from-left';
+    }
+
+    return 'enter-fade';
+  };
+
   return (
     <div className="app-shell">
       <div className="ambient ambient-left" aria-hidden="true" />
       <div className="ambient ambient-right" aria-hidden="true" />
 
-      <nav className="navbar glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <nav className="navbar glass-panel">
         <div className="brand-wrap">
           <span className="brand-dot" aria-hidden="true" />
-          <h2 style={{ cursor: 'pointer' }} onClick={() => setHalamanAktif('dashboard')}>LaporDesa</h2>
+          <h2 className="brand-title" onClick={() => pindahHalaman('dashboard')}>LaporDesa</h2>
         </div>
         
         {/* Menu Navigasi Tengah */}
-        <div style={{ display: 'flex', gap: '15px' }}>
+        <div className="nav-tabs">
           <button 
-            onClick={() => setHalamanAktif('dashboard')}
-            style={{ background: halamanAktif === 'dashboard' ? 'rgba(255,255,255,0.1)' : 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', transition: '0.3s' }}
+            onClick={() => pindahHalaman('dashboard')}
+            className={`nav-tab ${halamanAktif === 'dashboard' ? 'active' : ''}`}
           >
             Beranda
           </button>
           <button 
-            onClick={() => setHalamanAktif('form')}
-            style={{ background: halamanAktif === 'form' ? 'rgba(255,255,255,0.1)' : 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', transition: '0.3s' }}
+            onClick={() => pindahHalaman('form')}
+            className={`nav-tab ${halamanAktif === 'form' ? 'active' : ''}`}
           >
             Form Laporan
           </button>
@@ -120,37 +143,36 @@ function App() {
             HALAMAN 1: DASHBOARD
             ========================================== */}
         {halamanAktif === 'dashboard' && (
-          <>
-            <header className="hero glass-panel" style={{ textAlign: 'center' }}>
+          <div className={`page-view dashboard-view ${getViewTransitionClass('dashboard')}`}>
+            <header className="hero glass-panel hero-centered">
               <p className="hero-kicker">Platform Pengaduan Terintegrasi</p>
               <h1>Pengaduan Warga, Dikelola Cepat dan Transparan.</h1>
-              <p className="hero-subtext" style={{ margin: '0 auto', maxWidth: '600px' }}>
+              <p className="hero-subtext hero-subtext-centered">
                 Antarmuka modern untuk menerima laporan, memantau status, dan mempercepat tindakan secara real-time.
               </p>
               
               {/* Box Statistik Buatan */}
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', margin: '30px 0' }}>
-                <div className="glass-panel" style={{ padding: '20px', borderRadius: '16px', minWidth: '150px' }}>
-                  <h2 style={{ fontSize: '2.5rem', margin: '0 0 5px 0', color: '#38bdf8' }}>{laporan.length}</h2>
-                  <span style={{ fontSize: '0.9rem', opacity: 0.7 }}>Total Laporan</span>
+              <div className="stats-container">
+                <div className="glass-panel stat-card">
+                  <h2 className="stat-value stat-cyan">{laporan.length}</h2>
+                  <span className="stat-label">Total Laporan</span>
                 </div>
-                <div className="glass-panel" style={{ padding: '20px', borderRadius: '16px', minWidth: '150px' }}>
-                  <h2 style={{ fontSize: '2.5rem', margin: '0 0 5px 0', color: '#10b981' }}>98%</h2>
-                  <span style={{ fontSize: '0.9rem', opacity: 0.7 }}>Tingkat Respon</span>
+                <div className="glass-panel stat-card">
+                  <h2 className="stat-value stat-emerald">98%</h2>
+                  <span className="stat-label">Tingkat Respon</span>
                 </div>
               </div>
 
               {/* Tombol Call to Action */}
               <button 
-                className="btn-submit" 
-                onClick={() => setHalamanAktif('form')}
-                style={{ maxWidth: '300px', margin: '0 auto', fontSize: '1.1rem', padding: '16px' }}
+                className="btn-submit huge-cta" 
+                onClick={() => pindahHalaman('form')}
               >
                 ⚡ Laporkan Masalah Sekarang
               </button>
             </header>
 
-            <section className="dashboard-grid" style={{ display: 'block', marginTop: '40px' }}>
+            <section className="dashboard-grid dashboard-feed-wrap">
               <section className="list-section">
                 <div className="section-head list-head">
                   <h3>Live Feed Laporan</h3>
@@ -202,22 +224,22 @@ function App() {
                 )}
               </section>
             </section>
-          </>
+          </div>
         )}
 
         {/* ==========================================
             HALAMAN 2: FORM INPUT
             ========================================== */}
         {halamanAktif === 'form' && (
-          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div className={`form-page-wrap page-view form-view ${getViewTransitionClass('form')}`}>
             <button 
-              onClick={() => setHalamanAktif('dashboard')}
-              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', marginBottom: '20px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+              onClick={() => pindahHalaman('dashboard')}
+              className="btn-back"
             >
               ← Kembali ke Dashboard
             </button>
 
-            <aside className="form-section glass-panel" style={{ width: '100%' }}>
+            <aside className="form-section glass-panel form-panel-full">
               <div className="section-head">
                 <h3>Buat Laporan Baru</h3>
                 <span>Enkripsi Aktif 🔒</span>
@@ -244,8 +266,9 @@ function App() {
                   <input id="foto" type="file" name="foto" onChange={handleChange} accept="image/*" required />
                 </div>
 
-                <button type="submit" className="btn-submit" disabled={isSubmitting} style={{ marginTop: '20px' }}>
-                  {isSubmitting ? 'Memproses Data...' : 'Kirim Laporan Resmi'}
+                <button type="submit" className="btn-submit form-submit" disabled={isSubmitting}>
+                  <span>{isSubmitting ? 'Memproses Data...' : 'Kirim Laporan Resmi'}</span>
+                  {isSubmitting && <span className="btn-progress" aria-hidden="true" />}
                 </button>
               </form>
             </aside>
