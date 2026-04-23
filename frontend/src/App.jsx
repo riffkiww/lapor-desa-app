@@ -49,59 +49,73 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <div className="header">
-        <h1>Lapor Desa</h1>
-        <p>Sistem Pengaduan Masyarakat Desa Berbasis Cloud</p>
-      </div>
-      
-      {/* Bagian Form Input */}
-      <div className="card">
-        <h3 style={{marginTop: 0, marginBottom: '1.5rem', color: '#111827'}}>Buat Laporan Baru</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Nama Pelapor</label>
-            <input type="text" name="nama" className="form-input" placeholder="Masukkan nama lengkap" value={formData.nama} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Judul Laporan</label>
-            <input type="text" name="judul" className="form-input" placeholder="Contoh: Jalan berlubang di RT 01" value={formData.judul} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Detail Laporan</label>
-            <textarea name="isi" className="form-input" rows="4" placeholder="Ceritakan detail aduan Anda..." value={formData.isi} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Upload Bukti Foto</label>
-            <input type="file" name="foto" className="form-input file-input" onChange={handleChange} required />
-          </div>
-          <button type="submit" className="btn-submit">Kirim Laporan</button>
-        </form>
-      </div>
+    <>
+      {/* Navbar Baru */}
+      <nav className="navbar">
+        <h2>LaporDesa.</h2>
+        <div style={{fontWeight: '600', color: '#666'}}>Admin Dashboard</div>
+      </nav>
 
-      <hr style={{border: 'none', borderTop: '2px solid #e5e7eb', margin: '3rem 0'}} />
+      {/* Hero / Sambutan Dashboard */}
+      <header className="hero">
+        <h1>Layanan Pengaduan Warga Terpadu</h1>
+        <p>Sampaikan aspirasi dan laporan Anda. Kami siap melayani dengan cepat dan transparan.</p>
+      </header>
 
-      {/* Bagian Dashboard/List Laporan */}
-      <h2 style={{color: '#111827', marginBottom: '1.5rem'}}>Daftar Pengaduan Terbaru</h2>
-      
-      {laporan.length === 0 ? (
-        <p style={{textAlign: 'center', color: '#6b7280'}}>Belum ada laporan yang masuk.</p>
-      ) : (
-        <div className="grid-laporan">
-          {laporan.map((item) => (
-            <div key={item.id} className="laporan-card">
-              <h4>{item.judul_laporan}</h4>
-              <p style={{color: '#6b7280', fontSize: '0.9rem'}}><strong>Pelapor:</strong> {item.nama_pelapor}</p>
-              <p style={{lineHeight: '1.5'}}>{item.isi_laporan}</p>
-              {item.foto_url && (
-                <img src={item.foto_url} alt="bukti" style={{ width: '100%', borderRadius: '8px', marginTop: '1rem' }} />
-              )}
-              <span className="badge-status">{item.status || 'Menunggu'}</span>
+      <div className="container">
+        <div className="main-content">
+          
+          {/* Kolom Kiri: Form */}
+          <div className="form-section">
+            <div className="card">
+              <h3 style={{marginTop: 0, color: '#333'}}>Buat Laporan Baru</h3>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Nama Pelapor</label>
+                  <input type="text" value={formData.nama_pelapor} onChange={(e) => setFormData({...formData, nama_pelapor: e.target.value})} placeholder="Masukkan nama lengkap" required />
+                </div>
+                <div className="form-group">
+                  <label>Judul Laporan</label>
+                  <input type="text" value={formData.judul_laporan} onChange={(e) => setFormData({...formData, judul_laporan: e.target.value})} placeholder="Contoh: Jalan berlubang di RT 01" required />
+                </div>
+                <div className="form-group">
+                  <label>Detail Laporan</label>
+                  <textarea rows="4" value={formData.isi_laporan} onChange={(e) => setFormData({...formData, isi_laporan: e.target.value})} placeholder="Ceritakan detail aduan Anda..." required></textarea>
+                </div>
+                <div className="form-group">
+                  <label>Upload Bukti Foto</label>
+                  <input type="file" onChange={(e) => setFormData({...formData, foto: e.target.files[0]})} accept="image/*" required />
+                </div>
+                <button type="submit" className="btn-submit">🚀 Kirim Laporan</button>
+              </form>
             </div>
-          ))}
+          </div>
+
+          {/* Kolom Kanan: Daftar Laporan */}
+          <div className="list-section">
+            <h3 style={{marginTop: 0, color: '#333'}}>Laporan Masuk ({laporanList.length})</h3>
+            
+            {laporanList.length === 0 ? (
+              <p style={{color: '#888'}}>Belum ada laporan yang masuk.</p>
+            ) : (
+              <div className="laporan-grid">
+                {laporanList.map((item) => (
+                  <div key={item.id} className="card laporan-item">
+                    <h4 style={{margin: '0 0 5px 0'}}>{item.judul_laporan}</h4>
+                    <span style={{fontSize: '0.9rem', color: '#666'}}>Oleh: {item.nama_pelapor}</span>
+                    {item.foto_url && (
+                      <img src={item.foto_url} alt="Bukti laporan" />
+                    )}
+                    <span className="status-badge">{item.status || 'Menunggu'}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }
 
