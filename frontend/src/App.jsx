@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'; 
+import './App.css';
 
 function App() {
   const [laporan, setLaporan] = useState([]);
@@ -48,79 +48,143 @@ function App() {
     }
   };
 
+  const getCardVariant = (index, hasImage) => {
+    const variants = ['accent-cyan', 'accent-indigo', 'accent-emerald', 'accent-amber'];
+    const size = hasImage ? 'bento-wide' : index % 3 === 0 ? 'bento-tall' : 'bento-regular';
+    return `${size} ${variants[index % variants.length]}`;
+  };
+
   return (
-    <>
-      {/* Navbar Baru */}
-      <nav className="navbar">
-        <h2>LaporDesa.</h2>
+    <div className="app-shell">
+      <div className="ambient ambient-left" aria-hidden="true" />
+      <div className="ambient ambient-right" aria-hidden="true" />
+
+      <nav className="navbar glass-panel">
+        <div className="brand-wrap">
+          <span className="brand-dot" aria-hidden="true" />
+          <h2>LaporDesa</h2>
+        </div>
+        <span className="badge-live">Realtime Citizen Desk</span>
       </nav>
 
-      {/* Hero / Sambutan Dashboard */}
-      <header className="hero">
-        <h1>Layanan Pengaduan Warga Terpadu</h1>
-        <p>Sampaikan aspirasi dan laporan Anda. Kami siap melayani dengan cepat dan transparan.</p>
-      </header>
+      <main className="container">
+        <header className="hero glass-panel">
+          <p className="hero-kicker">Platform Pengaduan Terintegrasi</p>
+          <h1>Pengaduan Warga, Dikelola Cepat dan Transparan.</h1>
+          <p className="hero-subtext">
+            Antarmuka modern untuk menerima laporan, memantau status, dan mempercepat tindakan.
+          </p>
+        </header>
 
-      <div className="container">
-        <div className="main-content">
-          
-          {/* Kolom Kiri: Form */}
-          <div className="form-section">
-            <div className="card">
-              <h3 style={{marginTop: 0, color: '#333'}}>Buat Laporan Baru</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>Nama Pelapor</label>
-                  {/* Disamakan menjadi formData.nama */}
-                  <input type="text" name="nama" value={formData.nama} onChange={handleChange} placeholder="Masukkan nama lengkap" required />
-                </div>
-                <div className="form-group">
-                  <label>Judul Laporan</label>
-                  {/* Disamakan menjadi formData.judul */}
-                  <input type="text" name="judul" value={formData.judul} onChange={handleChange} placeholder="Contoh: Jalan berlubang di RT 01" required />
-                </div>
-                <div className="form-group">
-                  <label>Detail Laporan</label>
-                  {/* Disamakan menjadi formData.isi */}
-                  <textarea rows="4" name="isi" value={formData.isi} onChange={handleChange} placeholder="Ceritakan detail aduan Anda..." required></textarea>
-                </div>
-                <div className="form-group">
-                  <label>Upload Bukti Foto</label>
-                  <input type="file" name="foto" onChange={handleChange} accept="image/*" required />
-                </div>
-                <button type="submit" className="btn-submit">🚀 Kirim Laporan</button>
-              </form>
+        <section className="dashboard-grid">
+          <aside className="form-section glass-panel">
+            <div className="section-head">
+              <h3>Buat Laporan Baru</h3>
+              <span>Form Aman</span>
             </div>
-          </div>
 
-          {/* Kolom Kanan: Daftar Laporan */}
-          <div className="list-section">
-            {/* Disamakan menjadi laporan.length */}
-            <h3 style={{marginTop: 0, color: '#333'}}>Laporan Masuk ({laporan.length})</h3>
-            
+            <form onSubmit={handleSubmit} className="report-form">
+              <div className="form-group">
+                <label htmlFor="nama">Nama Pelapor</label>
+                <input
+                  id="nama"
+                  type="text"
+                  name="nama"
+                  value={formData.nama}
+                  onChange={handleChange}
+                  placeholder="Masukkan nama lengkap"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="judul">Judul Laporan</label>
+                <input
+                  id="judul"
+                  type="text"
+                  name="judul"
+                  value={formData.judul}
+                  onChange={handleChange}
+                  placeholder="Contoh: Jalan berlubang di RT 01"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="isi">Detail Laporan</label>
+                <textarea
+                  id="isi"
+                  rows="5"
+                  name="isi"
+                  value={formData.isi}
+                  onChange={handleChange}
+                  placeholder="Ceritakan detail aduan Anda"
+                  required
+                />
+              </div>
+
+              <div className="form-group form-group-file">
+                <label htmlFor="foto">Upload Bukti Foto</label>
+                <input
+                  id="foto"
+                  type="file"
+                  name="foto"
+                  onChange={handleChange}
+                  accept="image/*"
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn-submit">
+                Kirim Laporan
+              </button>
+            </form>
+          </aside>
+
+          <section className="list-section">
+            <div className="section-head list-head">
+              <h3>Laporan Masuk</h3>
+              <span className="count-pill">{laporan.length} total</span>
+            </div>
+
             {laporan.length === 0 ? (
-              <p style={{color: '#888'}}>Belum ada laporan yang masuk.</p>
+              <div className="empty-state glass-panel">
+                <p>Belum ada laporan masuk. Laporan pertama akan tampil di sini.</p>
+              </div>
             ) : (
               <div className="laporan-grid">
-                {/* Disamakan menjadi laporan.map */}
-                {laporan.map((item) => (
-                  <div key={item.id} className="card laporan-item">
-                    {/* Sesuaikan dengan nama kolom di database (HeidiSQL) */}
-                    <h4 style={{margin: '0 0 5px 0'}}>{item.judul_laporan || item.judul}</h4>
-                    <span style={{fontSize: '0.9rem', color: '#666'}}>Oleh: {item.nama_pelapor || item.nama}</span>
-                    {item.foto_url && (
-                      <img src={item.foto_url} alt="Bukti laporan" />
-                    )}
-                    <span className="status-badge">{item.status || 'Menunggu'}</span>
-                  </div>
-                ))}
+                {laporan.map((item, index) => {
+                  const judul = item.judul_laporan || item.judul;
+                  const nama = item.nama_pelapor || item.nama;
+                  const status = item.status || 'Menunggu';
+                  const hasImage = Boolean(item.foto_url);
+
+                  return (
+                    <article
+                      key={item.id || `${judul}-${index}`}
+                      className={`laporan-item glass-panel ${getCardVariant(index, hasImage)}`}
+                    >
+                      <div className="laporan-meta">
+                        <span className="status-badge">{status}</span>
+                        <span className="laporan-author">Oleh {nama}</span>
+                      </div>
+
+                      <h4>{judul}</h4>
+
+                      {hasImage && (
+                        <div className="image-wrap">
+                          <img src={item.foto_url} alt={`Bukti laporan ${judul}`} />
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             )}
-          </div>
-
-        </div>
-      </div>
-    </>
+          </section>
+        </section>
+      </main>
+    </div>
   );
 }
 
