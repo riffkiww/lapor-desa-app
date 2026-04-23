@@ -41,6 +41,33 @@ function App() {
 
   useEffect(() => { fetchLaporan(); }, []);
 
+  // --- FUNGSI BARU: GEOLOCATION ---
+  const handleGetLocation = () => {
+    if ("geolocation" in navigator) {
+      setToast({ type: 'success', message: 'Sedang mengambil koordinat...' });
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const lokasiTeks = `[📍 LOKASI GPS: ${latitude}, ${longitude}]`;
+          
+          setFormData(prev => ({
+            ...prev,
+            isi: prev.isi ? `${prev.isi}\n\n${lokasiTeks}` : lokasiTeks
+          }));
+          
+          setToast({ type: 'success', message: 'Lokasi presisi berhasil ditambahkan!' });
+        },
+        (error) => {
+          setToast({ type: 'error', message: 'Gagal akses lokasi. Periksa izin browser Anda.' });
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      setToast({ type: 'error', message: 'Browser Anda tidak mendukung fitur GPS.' });
+    }
+  };
+
   const handleChange = (e) => {
     if (e.target.name === 'foto') {
       setFormData({ ...formData, foto: e.target.files[0] });
@@ -208,7 +235,7 @@ function App() {
                           style={{ 
                             animationDelay: `${index * 80}ms`,
                             display: 'flex', 
-                            flexDirection: 'column' // Ditambahkan agar tombol Share selalu di bawah
+                            flexDirection: 'column' 
                           }}
                         >
                           <div className="laporan-meta">
@@ -290,7 +317,25 @@ function App() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="isi">Kronologi Detail</label>
+                  {/* --- TOMBOL GPS DISINI --- */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label htmlFor="isi" style={{ margin: 0 }}>Kronologi Detail</label>
+                    <button 
+                      type="button" 
+                      onClick={handleGetLocation}
+                      style={{ 
+                        background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.2)', 
+                        color: '#38bdf8', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', 
+                        cursor: 'pointer', fontWeight: '600', transition: '0.2s' 
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.background = 'rgba(56, 189, 248, 0.2)'}
+                      onMouseOut={(e) => e.currentTarget.style.background = 'rgba(56, 189, 248, 0.1)'}
+                    >
+                      📍 Dapatkan Lokasi GPS
+                    </button>
+                  </div>
+                  {/* ------------------------- */}
+                  
                   <textarea id="isi" rows="5" name="isi" value={formData.isi} onChange={handleChange} placeholder="Ceritakan detail temuan Anda" required />
                 </div>
 
