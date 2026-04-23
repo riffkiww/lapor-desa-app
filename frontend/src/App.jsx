@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'; // Memanggil file CSS yang baru kita buat
+import './App.css'; 
 
 function App() {
   const [laporan, setLaporan] = useState([]);
@@ -42,7 +42,7 @@ function App() {
       await axios.post('http://18.143.140.149:5050/api/pengaduan', data);
       alert("Laporan berhasil dikirim!");
       setFormData({ nama: '', judul: '', isi: '', foto: null });
-      fetchLaporan();
+      fetchLaporan(); // Otomatis refresh daftar laporan setelah kirim
     } catch (err) {
       alert("Backend belum siap, form belum bisa dikirim!");
     }
@@ -72,19 +72,22 @@ function App() {
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Nama Pelapor</label>
-                  <input type="text" value={formData.nama_pelapor} onChange={(e) => setFormData({...formData, nama_pelapor: e.target.value})} placeholder="Masukkan nama lengkap" required />
+                  {/* Disamakan menjadi formData.nama */}
+                  <input type="text" name="nama" value={formData.nama} onChange={handleChange} placeholder="Masukkan nama lengkap" required />
                 </div>
                 <div className="form-group">
                   <label>Judul Laporan</label>
-                  <input type="text" value={formData.judul_laporan} onChange={(e) => setFormData({...formData, judul_laporan: e.target.value})} placeholder="Contoh: Jalan berlubang di RT 01" required />
+                  {/* Disamakan menjadi formData.judul */}
+                  <input type="text" name="judul" value={formData.judul} onChange={handleChange} placeholder="Contoh: Jalan berlubang di RT 01" required />
                 </div>
                 <div className="form-group">
                   <label>Detail Laporan</label>
-                  <textarea rows="4" value={formData.isi_laporan} onChange={(e) => setFormData({...formData, isi_laporan: e.target.value})} placeholder="Ceritakan detail aduan Anda..." required></textarea>
+                  {/* Disamakan menjadi formData.isi */}
+                  <textarea rows="4" name="isi" value={formData.isi} onChange={handleChange} placeholder="Ceritakan detail aduan Anda..." required></textarea>
                 </div>
                 <div className="form-group">
                   <label>Upload Bukti Foto</label>
-                  <input type="file" onChange={(e) => setFormData({...formData, foto: e.target.files[0]})} accept="image/*" required />
+                  <input type="file" name="foto" onChange={handleChange} accept="image/*" required />
                 </div>
                 <button type="submit" className="btn-submit">🚀 Kirim Laporan</button>
               </form>
@@ -93,16 +96,19 @@ function App() {
 
           {/* Kolom Kanan: Daftar Laporan */}
           <div className="list-section">
-            <h3 style={{marginTop: 0, color: '#333'}}>Laporan Masuk ({laporanList.length})</h3>
+            {/* Disamakan menjadi laporan.length */}
+            <h3 style={{marginTop: 0, color: '#333'}}>Laporan Masuk ({laporan.length})</h3>
             
-            {laporanList.length === 0 ? (
+            {laporan.length === 0 ? (
               <p style={{color: '#888'}}>Belum ada laporan yang masuk.</p>
             ) : (
               <div className="laporan-grid">
-                {laporanList.map((item) => (
+                {/* Disamakan menjadi laporan.map */}
+                {laporan.map((item) => (
                   <div key={item.id} className="card laporan-item">
-                    <h4 style={{margin: '0 0 5px 0'}}>{item.judul_laporan}</h4>
-                    <span style={{fontSize: '0.9rem', color: '#666'}}>Oleh: {item.nama_pelapor}</span>
+                    {/* Sesuaikan dengan nama kolom di database (HeidiSQL) */}
+                    <h4 style={{margin: '0 0 5px 0'}}>{item.judul_laporan || item.judul}</h4>
+                    <span style={{fontSize: '0.9rem', color: '#666'}}>Oleh: {item.nama_pelapor || item.nama}</span>
                     {item.foto_url && (
                       <img src={item.foto_url} alt="Bukti laporan" />
                     )}
