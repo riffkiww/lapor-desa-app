@@ -13,7 +13,7 @@ function App() {
 
   const fetchLaporan = async () => {
     try {
-      const res = await axios.get('http://localhost:5050/api/pengaduan');
+      const res = await axios.get('http://18.143.140.149:5050/api/pengaduan');
       setLaporan(res.data);
     } catch (err) {
       console.log("Belum terhubung ke backend");
