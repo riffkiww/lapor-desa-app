@@ -205,7 +205,11 @@ function App() {
                         <article
                           key={item.id || `${judul}-${index}`}
                           className={`laporan-item glass-panel ${getCardVariant(index, hasImage)}`}
-                          style={{ animationDelay: `${index * 80}ms` }}
+                          style={{ 
+                            animationDelay: `${index * 80}ms`,
+                            display: 'flex', 
+                            flexDirection: 'column' // Ditambahkan agar tombol Share selalu di bawah
+                          }}
                         >
                           <div className="laporan-meta">
                             <span className="status-badge">{status}</span>
@@ -213,10 +217,39 @@ function App() {
                           </div>
                           <h4>{judul}</h4>
                           {hasImage && (
-                            <div className="image-wrap">
+                            <div className="image-wrap" style={{ marginBottom: '15px' }}>
                               <img src={item.foto_url} alt={`Bukti laporan ${judul}`} />
                             </div>
                           )}
+
+                          {/* --- TOMBOL SHARE WHATSAPP --- */}
+                          <div style={{ marginTop: 'auto', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                            <a 
+                              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🚨 *LAPOR DESA ALERT* 🚨\n\nAda aduan baru masuk dari warga!\n\n🗣️ *Pelapor:* ${nama}\n📌 *Kasus:* ${judul}\n\nMohon segera ditindaklanjuti ya, Pak/Bu! 🙏`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                gap: '8px',
+                                textDecoration: 'none', 
+                                color: '#22c55e',
+                                background: 'rgba(34, 197, 94, 0.1)',
+                                padding: '10px', 
+                                borderRadius: '8px', 
+                                fontWeight: '600',
+                                fontSize: '0.9rem',
+                                transition: '0.2s'
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(34, 197, 94, 0.2)'}
+                              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(34, 197, 94, 0.1)'}
+                            >
+                              <span>📱</span> Viralkan ke WhatsApp
+                            </a>
+                          </div>
+                          {/* ----------------------------- */}
+
                         </article>
                       );
                     })}
