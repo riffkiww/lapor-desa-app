@@ -9,6 +9,11 @@ function App() {
 
   const [laporan, setLaporan] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // --- STATE UNTUK API BERITA ---
+  const [berita, setBerita] = useState([]);
+  const [isLoadingBerita, setIsLoadingBerita] = useState(true);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
   const [formData, setFormData] = useState({
@@ -26,6 +31,7 @@ function App() {
     return () => clearTimeout(timeout);
   }, [toast]);
 
+  // --- FUNGSI AMBIL LAPORAN Warga ---
   const fetchLaporan = async () => {
     setIsLoading(true);
     try {
@@ -39,9 +45,30 @@ function App() {
     }
   };
 
-  useEffect(() => { fetchLaporan(); }, []);
+  // --- FUNGSI AMBIL BERITA (API PUBLIK) ---
+  const fetchBerita = async () => {
+    setIsLoadingBerita(true);
+    try {
+      // Endpoint API CNN Indonesia Nasional
+      const res = await axios.get('https://api-berita-indonesia.vercel.app/cnn/nasional/');
+      // Mengambil 3 berita teratas saja
+      if (res.data && res.data.data && res.data.data.posts) {
+        setBerita(res.data.data.posts.slice(0, 3));
+      }
+    } catch (err) {
+      console.error("Gagal memuat berita:", err);
+    } finally {
+      setIsLoadingBerita(false);
+    }
+  };
 
-  // --- FUNGSI BARU: GEOLOCATION ---
+  // Panggil kedua fungsi saat aplikasi pertama kali dimuat
+  useEffect(() => { 
+    fetchLaporan(); 
+    fetchBerita();
+  }, []);
+
+  // --- FUNGSI GEOLOCATION ---
   const handleGetLocation = () => {
     if ("geolocation" in navigator) {
       setToast({ type: 'success', message: 'Sedang mengambil koordinat...' });
@@ -91,7 +118,6 @@ function App() {
       setFormData({ nama: '', judul: '', isi: '', foto: null });
       fetchLaporan(); 
       
-      // KEMBALI KE DASHBOARD SETELAH SUKSES KIRIM
       pindahHalaman('dashboard');
     } catch (err) {
       setToast({ type: 'error', message: 'Backend belum siap, form belum bisa dikirim.' });
@@ -136,10 +162,9 @@ function App() {
       <nav className="navbar glass-panel">
         <div className="brand-wrap">
           <span className="brand-dot" aria-hidden="true" />
-          <h2 className="brand-title" onClick={() => pindahHalaman('dashboard')}>LaporDesa</h2>
+          <h2 className="brand-title" onClick={() => pindahHalaman('dashboard')} style={{cursor: 'pointer'}}>LaporDesa</h2>
         </div>
         
-        {/* Menu Navigasi Tengah */}
         <div className="nav-tabs">
           <button 
             onClick={() => pindahHalaman('dashboard')}
@@ -178,7 +203,6 @@ function App() {
                 Antarmuka modern untuk menerima laporan, memantau status, dan mempercepat tindakan secara real-time.
               </p>
               
-              {/* Box Statistik Buatan */}
               <div className="stats-container">
                 <div className="glass-panel stat-card">
                   <h2 className="stat-value stat-cyan">{laporan.length}</h2>
@@ -190,7 +214,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Tombol Call to Action */}
               <button 
                 className="btn-submit huge-cta" 
                 onClick={() => pindahHalaman('form')}
@@ -198,6 +221,34 @@ function App() {
                 ⚡ Laporkan Masalah Sekarang
               </button>
             </header>
+
+            {/* --- SECTION BERITA API --- */}
+            <section style={{ marginTop: '50px', marginBottom: '20px' }}>
+              <div className="section-head list-head">
+                <h3>Kabar Nasional Terkini</h3>
+                <span className="count-pill">Live API CNN</span>
+              </div>
+              
+              {isLoadingBerita ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8' }}>Memuat berita terbaru...</div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                  {berita.map((item, index) => (
+                    <a key={index} href={item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <div className="glass-panel" style={{ padding: '0', overflow: 'hidden', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', transition: '0.3s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                        <img src={item.thumbnail} alt={item.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+                        <div style={{ padding: '20px' }}>
+                          <span style={{ fontSize: '0.7rem', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}>Berita</span>
+                          <h4 style={{ margin: '12px 0 8px 0', fontSize: '1.1rem', lineHeight: '1.4' }}>{item.title}</h4>
+                          <p style={{ fontSize: '0.85rem', opacity: '0.6' }}>{new Date(item.pubDate).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </section>
+            {/* --------------------------- */}
 
             <section className="dashboard-grid dashboard-feed-wrap">
               <section className="list-section">
@@ -249,7 +300,6 @@ function App() {
                             </div>
                           )}
 
-                          {/* --- TOMBOL SHARE WHATSAPP --- */}
                           <div style={{ marginTop: 'auto', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                             <a 
                               href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🚨 *LAPOR DESA ALERT* 🚨\n\nAda aduan baru masuk dari warga!\n\n🗣️ *Pelapor:* ${nama}\n📌 *Kasus:* ${judul}\n\nMohon segera ditindaklanjuti ya, Pak/Bu! 🙏`)}`}
@@ -275,7 +325,6 @@ function App() {
                               <span>📱</span> Viralkan ke WhatsApp
                             </a>
                           </div>
-                          {/* ----------------------------- */}
 
                         </article>
                       );
@@ -317,7 +366,6 @@ function App() {
                 </div>
 
                 <div className="form-group">
-                  {/* --- TOMBOL GPS DISINI --- */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <label htmlFor="isi" style={{ margin: 0 }}>Kronologi Detail</label>
                     <button 
@@ -334,7 +382,6 @@ function App() {
                       📍 Dapatkan Lokasi GPS
                     </button>
                   </div>
-                  {/* ------------------------- */}
                   
                   <textarea id="isi" rows="5" name="isi" value={formData.isi} onChange={handleChange} placeholder="Ceritakan detail temuan Anda" required />
                 </div>
