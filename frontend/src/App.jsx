@@ -53,20 +53,20 @@ function App() {
     setBerita([
       {
         title: "Pemerintah Tingkatkan Anggaran Infrastruktur Desa 2026",
-        link: "#",
-        thumbnail: "https://images.unsplash.com/photo-1541888087405-ebccafbc9b5c?auto=format&fit=crop&q=80&w=400",
+        link: "https://kemendesa.go.id/", // Link asli ke web Kementerian Desa
+        thumbnail: "https://images.unsplash.com/photo-1584483754877-c917fb6a0846?auto=format&fit=crop&q=80&w=400", // Gambar alat berat (pasti jalan)
         pubDate: new Date().toISOString()
       },
       {
         title: "Program Desa Digital Targetkan 10.000 Desa Terkoneksi Internet",
-        link: "#",
-        thumbnail: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=400",
+        link: "https://www.kominfo.go.id/", // Link asli ke web Kominfo
+        thumbnail: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=400", // Gambar teknologi (sudah jalan)
         pubDate: new Date().toISOString()
       },
       {
         title: "Penghargaan Inovasi Pelayanan Publik Tingkat Desa Dibuka",
-        link: "#",
-        thumbnail: "https://images.unsplash.com/photo-1559027615-cd99713b8ac7?auto=format&fit=crop&q=80&w=400",
+        link: "https://www.menpan.go.id/", // Link asli ke web KemenPANRB
+        thumbnail: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=400", // Gambar tata kota/desa (pasti jalan)
         pubDate: new Date().toISOString()
       }
     ]);
